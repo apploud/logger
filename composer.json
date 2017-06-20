@@ -1,0 +1,65 @@
+{
+	"name": "apploud/logger",
+	"description": "Monolog integration into Apploud projects",
+	"license": "proprietary",
+	"authors": [
+		{
+			"name": "Jan Konáš",
+			"email": "jan.konas@apploud.cz",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": "^8.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Apploud\\Logger\\": "src"
+		}
+	},
+	"require-dev": {
+		"roave/security-advisories": "dev-latest",
+		"phpunit/phpunit": "^9.5",
+		"mockery/mockery": "^1.6",
+		"php-parallel-lint/php-parallel-lint": "^1.4",
+		"phpstan/phpstan": "^1.11",
+		"phpstan/phpstan-strict-rules": "^1.6",
+		"phpstan/phpstan-phpunit": "^1.4",
+		"slevomat/coding-standard": "^8.15"
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Apploud\\Logger\\Test\\": "tests"
+		}
+	},
+	"scripts": {
+		"lint": "vendor/bin/parallel-lint -e php src tests",
+		"reqs": "bin/requirements-checker.sh",
+		"stan": "vendor/bin/phpstan analyse -l max -c phpstan.neon src tests",
+		"sniffer": "vendor/bin/phpcs --standard=coding-standard.xml --extensions=php --encoding=utf-8 --tab-width=4 --runtime-set php_version 80000 -sp src tests",
+		"fix": "vendor/bin/phpcbf --standard=coding-standard.xml --extensions=php --encoding=utf-8 --tab-width=4 --runtime-set php_version 80000 -sp src tests",
+		"phpunit": "vendor/bin/phpunit --colors=always",
+		"tests": "vendor/bin/phpunit --colors=always tests",
+		"test": [
+			"@lint",
+			"@stan",
+			"@sniffer",
+			"@reqs",
+			"@tests"
+		],
+		"analyse": [
+			"@lint",
+			"@stan",
+			"@sniffer"
+		],
+		"fix-analyse": [
+			"@fix",
+			"@analyse"
+		]
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
+}
