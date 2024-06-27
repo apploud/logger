@@ -10,7 +10,7 @@ channel:
 					- setFormatter(Monolog\Formatter\JsonFormatter())
 			- Mangoweb\MonologTracyHandler\TracyHandler(localBlueScreenDirectory: %logDir%, level: %minLevel%)
 		processors:
-			- Mangoweb\MonologTracyHandler\TracyProcessor()
+			- Mangoweb\MonologTracyHandler\TracyProcessor(Apploud\Logger\Tracy\LocalStorageDriver(%logDirUrl%))
 			- Monolog\Processor\WebProcessor()
 holder:
 	enabled: %holderEnabled%

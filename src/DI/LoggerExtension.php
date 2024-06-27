@@ -62,6 +62,7 @@ class LoggerExtension extends CompilerExtension
 		return Expect::structure([
 			'bluescreen' => Expect::structure([
 				'logDir' => Expect::string()->required(),
+				'logDirUrl' => Expect::string()->required(),
 				'minLevel' => Expect::type(Level::class)->default(Level::Warning),
 			]),
 			'extraHandlers' => Expect::arrayOf(
@@ -116,6 +117,7 @@ class LoggerExtension extends CompilerExtension
 			$this->loadFromFile(__DIR__ . '/monolog.neon'),
 			[
 				'logDir' => $this->config->bluescreen->logDir,
+				'logDirUrl' => $this->config->bluescreen->logDirUrl,
 				'minLevel' => $this->config->bluescreen->minLevel,
 				'holderEnabled' => $this->config->contributte->holder,
 				'managerEnabled' => $this->config->contributte->manager,
