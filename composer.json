@@ -10,7 +10,7 @@
 		}
 	],
 	"require": {
-		"php": "^8.0"
+		"php": "^8.1"
 	},
 	"autoload": {
 		"psr-4": {
@@ -19,7 +19,7 @@
 	},
 	"require-dev": {
 		"roave/security-advisories": "dev-latest",
-		"phpunit/phpunit": "^9.5",
+		"phpunit/phpunit": "^10.5",
 		"mockery/mockery": "^1.6",
 		"php-parallel-lint/php-parallel-lint": "^1.4",
 		"phpstan/phpstan": "^1.11",
@@ -36,8 +36,8 @@
 		"lint": "vendor/bin/parallel-lint -e php src tests",
 		"reqs": "bin/requirements-checker.sh",
 		"stan": "vendor/bin/phpstan analyse -l max -c phpstan.neon src tests",
-		"sniffer": "vendor/bin/phpcs --standard=coding-standard.xml --extensions=php --encoding=utf-8 --tab-width=4 --runtime-set php_version 80000 -sp src tests",
-		"fix": "vendor/bin/phpcbf --standard=coding-standard.xml --extensions=php --encoding=utf-8 --tab-width=4 --runtime-set php_version 80000 -sp src tests",
+		"sniffer": "vendor/bin/phpcs --standard=coding-standard.xml --extensions=php --encoding=utf-8 --tab-width=4 --runtime-set php_version 80100 -sp src tests",
+		"fix": "vendor/bin/phpcbf --standard=coding-standard.xml --extensions=php --encoding=utf-8 --tab-width=4 --runtime-set php_version 80100 -sp src tests",
 		"phpunit": "vendor/bin/phpunit --colors=always",
 		"tests": "vendor/bin/phpunit --colors=always tests",
 		"test": [
