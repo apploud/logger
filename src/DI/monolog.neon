@@ -12,3 +12,7 @@ channel:
 		processors:
 			- Mangoweb\MonologTracyHandler\TracyProcessor()
 			- Monolog\Processor\WebProcessor()
+holder:
+	enabled: %holderEnabled%
+manager:
+	enabled: %managerEnabled%

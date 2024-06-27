@@ -64,6 +64,10 @@ class LoggerExtension extends CompilerExtension
 				'minLevel' => Expect::type(Level::class)->default(Level::Warning),
 			]),
 			'monolog' => $monologSchema,
+			'contributte' => Expect::structure([
+				'holder' => Expect::bool(false),
+				'manager' => Expect::bool(false),
+			]),
 		]);
 	}
 
@@ -106,6 +110,8 @@ class LoggerExtension extends CompilerExtension
 			[
 				'logDir' => $this->config->bluescreen->logDir,
 				'minLevel' => $this->config->bluescreen->minLevel,
+				'holderEnabled' => $this->config->contributte->holder,
+				'managerEnabled' => $this->config->contributte->manager,
 			],
 			true
 		);
