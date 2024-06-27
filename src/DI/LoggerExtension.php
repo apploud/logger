@@ -6,13 +6,21 @@ namespace Apploud\Logger\DI;
 
 use Apploud\Logger\Logger;
 use Contributte\Monolog\DI\MonologExtension;
+use Monolog\Level;
 use Nette\DI\Compiler;
 use Nette\DI\CompilerExtension;
-use Nette\PhpGenerator\ClassType;
+use Nette\DI\Helpers;
+use Nette\PhpGenerator\ClassType as ClassTypeAlias;
+use Nette\Schema\Elements\Structure;
 use Nette\Schema\Expect;
+use Nette\Schema\Processor;
 use Nette\Schema\Schema;
 use Psr\Log\LoggerInterface;
+use stdClass;
 
+/**
+ * @property-read stdClass $config
+ */
 class LoggerExtension extends CompilerExtension
 {
 	private MonologExtension $monolog;
@@ -37,15 +45,26 @@ class LoggerExtension extends CompilerExtension
 	 */
 	public function setConfig(array|object $config): static
 	{
-		$this->config = $config;
-		$this->monolog->setConfig($config->monolog); // @phpstan-ignore property.nonObject
+		parent::setConfig($config);
+		$this->monolog->setConfig($this->getMonologConfig());
 		return $this;
 	}
 
 
 	public function getConfigSchema(): Schema
 	{
-		return Expect::structure(['monolog' => $this->monolog->getConfigSchema()]);
+		$monologSchema = $this->monolog->getConfigSchema();
+		if ($monologSchema instanceof Structure) {
+			$monologSchema->required(false);
+		}
+
+		return Expect::structure([
+			'bluescreen' => Expect::structure([
+				'logDir' => Expect::string()->required(),
+				'minLevel' => Expect::type(Level::class)->default(Level::Warning),
+			]),
+			'monolog' => $monologSchema,
+		]);
 	}
 
 
@@ -67,8 +86,31 @@ class LoggerExtension extends CompilerExtension
 	}
 
 
-	public function afterCompile(ClassType $class): void
+	public function afterCompile(ClassTypeAlias $class): void
 	{
 		$this->monolog->afterCompile($class);
+	}
+
+
+	/**
+	 * @return array<mixed>|object
+	 */
+	private function getMonologConfig(): array|object
+	{
+		if ($this->config->monolog) {
+			return $this->config->monolog;
+		}
+
+		$monologConfig = Helpers::expand(
+			$this->loadFromFile(__DIR__ . '/monolog.neon'),
+			[
+				'logDir' => $this->config->bluescreen->logDir,
+				'minLevel' => $this->config->bluescreen->minLevel,
+			],
+			true
+		);
+
+		$processor = new Processor();
+		return $processor->process($this->monolog->getConfigSchema(), $monologConfig);
 	}
 }

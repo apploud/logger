@@ -16,7 +16,8 @@
 		"psr/log": "^2.0 || ^3.0",
 		"nette/di": "^3.2",
 		"nette/schema": "^1.0",
-		"nette/php-generator": "^3.0 || ^4.0"
+		"nette/php-generator": "^3.0 || ^4.0",
+		"monolog/monolog": "^3.0"
 	},
 	"autoload": {
 		"psr-4": {

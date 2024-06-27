@@ -1,0 +1,14 @@
+hook:
+	fromTracy: true
+	toTracy: false
+channel:
+	default:
+		handlers:
+			-
+				factory: Monolog\Handler\StreamHandler("php://stdout")
+				setup:
+					- setFormatter(Monolog\Formatter\JsonFormatter())
+			- Mangoweb\MonologTracyHandler\TracyHandler(localBlueScreenDirectory: %logDir%, level: %minLevel%)
+		processors:
+			- Mangoweb\MonologTracyHandler\TracyProcessor()
+			- Monolog\Processor\WebProcessor()
