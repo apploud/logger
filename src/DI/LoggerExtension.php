@@ -9,6 +9,7 @@ use Contributte\Monolog\DI\MonologExtension;
 use Monolog\Level;
 use Nette\DI\Compiler;
 use Nette\DI\CompilerExtension;
+use Nette\DI\Definitions\Statement;
 use Nette\DI\Helpers;
 use Nette\PhpGenerator\ClassType as ClassTypeAlias;
 use Nette\Schema\Elements\Structure;
@@ -63,6 +64,12 @@ class LoggerExtension extends CompilerExtension
 				'logDir' => Expect::string()->required(),
 				'minLevel' => Expect::type(Level::class)->default(Level::Warning),
 			]),
+			'extraHandlers' => Expect::arrayOf(
+				Expect::anyOf(Expect::string(), Expect::array(), Expect::type(Statement::class))
+			),
+			'extraProcessors' => Expect::arrayOf(
+				Expect::anyOf(Expect::string(), Expect::array(), Expect::type(Statement::class))
+			),
 			'monolog' => $monologSchema,
 			'contributte' => Expect::structure([
 				'holder' => Expect::bool(false),
@@ -115,6 +122,9 @@ class LoggerExtension extends CompilerExtension
 			],
 			true
 		);
+
+		$monologConfig['channel']['default']['handlers'] = array_merge($monologConfig['channel']['default']['handlers'], $this->config->extraHandlers);
+		$monologConfig['channel']['default']['processors'] = array_merge($monologConfig['channel']['default']['processors'], $this->config->extraProcessors);
 
 		$processor = new Processor();
 		return $processor->process($this->monolog->getConfigSchema(), $monologConfig);
