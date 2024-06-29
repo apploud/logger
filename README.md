@@ -51,6 +51,11 @@ logger:
 				- setFormatter(Monolog\Formatter\JsonFormatter())
 	extraProcessors: # Adds processors to default logger, syntax same as in contributte extension
 		- Monolog\Processor\MemoryPeakUsageProcessor()
+	channels: # Adds other loggers, syntax same as in contributte extension
+		someChannel:
+			...
+		someOtherChannel:
+			...
 	contributte:
 		manager: false # if true, enables logger manager (see contributte docs)
 		holder: false # if true, enables logger holder (see contributte docs)

@@ -6,6 +6,7 @@ namespace Apploud\Logger\DI;
 
 use Apploud\Logger\Logger;
 use Contributte\Monolog\DI\MonologExtension;
+use Contributte\Monolog\Exception\Logic\InvalidStateException;
 use Monolog\Level;
 use Nette\DI\Compiler;
 use Nette\DI\CompilerExtension;
@@ -71,6 +72,14 @@ class LoggerExtension extends CompilerExtension
 			'extraProcessors' => Expect::arrayOf(
 				Expect::anyOf(Expect::string(), Expect::array(), Expect::type(Statement::class))
 			),
+			'channels' => Expect::arrayOf(Expect::structure([
+				'handlers' => Expect::arrayOf(
+					Expect::anyOf(Expect::string(), Expect::array(), Expect::type(Statement::class))
+				)->required()->min(1),
+				'processors' => Expect::arrayOf(
+					Expect::anyOf(Expect::string(), Expect::array(), Expect::type(Statement::class))
+				),
+			])),
 			'monolog' => $monologSchema,
 			'contributte' => Expect::structure([
 				'holder' => Expect::bool(false),
@@ -113,6 +122,17 @@ class LoggerExtension extends CompilerExtension
 			return $this->config->monolog;
 		}
 
+		$additionalChannels = [];
+		if ($this->config->channels) {
+			if (array_key_exists('default', $this->config->channels)) {
+				$message = '%s.channels cannot contain channel with name `default`.'
+					. ' Use `extraHandlers` and `extraProcessors` to modify default channel or use `monolog` to replace it.';
+				throw new InvalidStateException(sprintf($message, $this->name));
+			}
+
+			$additionalChannels = $this->config->channels;
+		}
+
 		$monologConfig = Helpers::expand(
 			$this->loadFromFile(__DIR__ . '/monolog.neon'),
 			[
@@ -125,6 +145,7 @@ class LoggerExtension extends CompilerExtension
 			true
 		);
 
+		$monologConfig['channel'] = array_merge($monologConfig['channel'], $additionalChannels);
 		$monologConfig['channel']['default']['handlers'] = array_merge($monologConfig['channel']['default']['handlers'], $this->config->extraHandlers);
 		$monologConfig['channel']['default']['processors'] = array_merge($monologConfig['channel']['default']['processors'], $this->config->extraProcessors);
 
