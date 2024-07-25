@@ -34,7 +34,7 @@ logger:
 
 Extension adds `\Apploud\Logger\Logger` to DI container. This logger also implements `\Psr\Log\LoggerInterface` interface.
 
-## Advanced configuration
+### Advanced configuration
 
 See commented example:
 
@@ -44,6 +44,12 @@ logger:
 		logDir: %appDir%/../log # path to store bluescreens in
 		logDirUrl: %server.baseUrl%/_belogs # URL to bluescreens directory, without trailing slash
 		minLevel: Monolog\Level::Warning # minimal Level for creating bluescreens, defaults to Warning
+	jwt:
+		process: true # if true, JWT processor adds decoded fields from JTW token in Authorization header to logs
+		fields: # which fields from JWT should be added to logs
+			- sub
+			- jti
+		extraFieldName: jwt # field name in `extra` section
 	extraHandlers: # Adds handlers to default logger, syntax same as in contributte extension
 		-
 			factory: Monolog\Handler\StreamHandler("%appDir%/../log/default.log")

@@ -5,8 +5,11 @@ declare(strict_types = 1);
 namespace Apploud\Logger\DI;
 
 use Apploud\Logger\Logger;
+use Apploud\Logger\Processor\JwtProcessor;
 use Contributte\Monolog\DI\MonologExtension;
 use Contributte\Monolog\Exception\Logic\InvalidStateException;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
 use Monolog\Level;
 use Nette\DI\Compiler;
 use Nette\DI\CompilerExtension;
@@ -66,6 +69,11 @@ class LoggerExtension extends CompilerExtension
 				'logDirUrl' => Expect::string()->required(),
 				'minLevel' => Expect::type(Level::class)->default(Level::Warning),
 			]),
+			'jwt' => Expect::structure([
+				'process' => Expect::bool(true),
+				'fields' => Expect::arrayOf('string')->default(null),
+				'extraFieldName' => Expect::string('jwt'),
+			]),
 			'extraHandlers' => Expect::arrayOf(
 				Expect::anyOf(Expect::string(), Expect::array(), Expect::type(Statement::class))
 			),
@@ -122,6 +130,8 @@ class LoggerExtension extends CompilerExtension
 			return $this->config->monolog;
 		}
 
+		$builder = $this->getContainerBuilder();
+
 		$additionalChannels = [];
 		if ($this->config->channels) {
 			if (array_key_exists('default', $this->config->channels)) {
@@ -144,6 +154,16 @@ class LoggerExtension extends CompilerExtension
 			],
 			true
 		);
+
+		if ($this->config->jwt->process) {
+			$builder->addDefinition($this->prefix('jwt.decoder'))->setFactory(JoseEncoder::class);
+			$builder->addDefinition($this->prefix('jwt.parser'))->setFactory(Parser::class);
+
+			$monologConfig['channel']['default']['processors'][] = new Statement(JwtProcessor::class, [
+				'fields' => $this->config->jwt->fields,
+				'extraFieldName' => $this->config->jwt->extraFieldName,
+			]);
+		}
 
 		$monologConfig['channel'] = array_merge($monologConfig['channel'], $additionalChannels);
 		$monologConfig['channel']['default']['handlers'] = array_merge($monologConfig['channel']['default']['handlers'], $this->config->extraHandlers);
