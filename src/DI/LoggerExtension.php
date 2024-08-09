@@ -6,6 +6,7 @@ namespace Apploud\Logger\DI;
 
 use Apploud\Logger\Logger;
 use Apploud\Logger\Processor\JwtProcessor;
+use Apploud\Logger\Processor\RequestIdProcessor;
 use Contributte\Monolog\DI\MonologExtension;
 use Contributte\Monolog\Exception\Logic\InvalidStateException;
 use Lcobucci\JWT\Encoding\JoseEncoder;
@@ -68,6 +69,12 @@ class LoggerExtension extends CompilerExtension
 				'logDir' => Expect::string()->required(),
 				'logDirUrl' => Expect::string()->required(),
 				'minLevel' => Expect::type(Level::class)->default(Level::Warning),
+			]),
+			'requestIds' => Expect::structure([
+				'process' => Expect::bool(true),
+				'requestIdHeader' => Expect::string('X-Request-ID'),
+				'correlationIdHeader' => Expect::string('X-Correlation-ID'),
+				'extraFieldName' => Expect::string('request'),
 			]),
 			'jwt' => Expect::structure([
 				'process' => Expect::bool(true),
@@ -154,6 +161,14 @@ class LoggerExtension extends CompilerExtension
 			],
 			true
 		);
+
+		if ($this->config->requestIds->process) {
+			$monologConfig['channel']['default']['processors'][] = new Statement(RequestIdProcessor::class, [
+				'requestIdHeader' => $this->config->requestIds->requestIdHeader,
+				'correlationIdHeader' => $this->config->requestIds->correlationIdHeader,
+				'extraFieldName' => $this->config->requestIds->extraFieldName,
+			]);
+		}
 
 		if ($this->config->jwt->process) {
 			$builder->addDefinition($this->prefix('jwt.decoder'))->setFactory(JoseEncoder::class);

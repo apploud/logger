@@ -44,6 +44,11 @@ logger:
 		logDir: %appDir%/../log # path to store bluescreens in
 		logDirUrl: %server.baseUrl%/_belogs # URL to bluescreens directory, without trailing slash
 		minLevel: Monolog\Level::Warning # minimal Level for creating bluescreens, defaults to Warning
+	requestIds:
+		process: true # if true, Request ID processor adds request tracing information to logs
+		requestIdHeader: X-Request-ID
+		correlationIdHeader: X-Correlation-ID
+		extraFieldName: request # field name in `extra` section
 	jwt:
 		process: true # if true, JWT processor adds decoded fields from JTW token in Authorization header to logs
 		fields: # which fields from JWT should be added to logs
