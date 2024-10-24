@@ -13,6 +13,14 @@ class UuidProcessor implements ProcessorInterface
 	/** @var non-empty-string */
 	private string $lastRecordUuid;
 
+	private string $extraFieldName;
+
+
+	public function __construct(string $extraFieldName = 'applicationErrorId')
+	{
+		$this->extraFieldName = $extraFieldName;
+	}
+
 
 	public function getLastRecordUuid(): string
 	{
@@ -23,7 +31,7 @@ class UuidProcessor implements ProcessorInterface
 	public function __invoke(LogRecord $record): LogRecord
 	{
 		$this->lastRecordUuid = Uuid::uuid4()->toString();
-		$record->extra['id'] = $this->lastRecordUuid;
+		$record->extra[$this->extraFieldName] = $this->lastRecordUuid;
 
 		return $record;
 	}
