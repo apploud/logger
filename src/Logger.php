@@ -4,13 +4,16 @@ declare(strict_types = 1);
 
 namespace Apploud\Logger;
 
+use Apploud\Logger\Processor\UuidProcessor;
+use Apploud\Logger\Record\LogRecordUuidProvider;
+use Monolog\Logger as MonologLogger;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Stringable;
 use Throwable;
 
-class Logger extends AbstractLogger
+class Logger extends AbstractLogger implements LogRecordUuidProvider
 {
 	private LoggerInterface $logger;
 
@@ -44,5 +47,19 @@ class Logger extends AbstractLogger
 	public function log($level, Stringable|string $message, array $context = []): void
 	{
 		$this->logger->log($level, $message, $context);
+	}
+
+
+	public function getLastRecordUuid(): ?string
+	{
+		if ($this->logger instanceof MonologLogger) {
+			foreach ($this->logger->getProcessors() as $processor) {
+				if ($processor instanceof UuidProcessor) {
+					return $processor->getLastRecordUuid();
+				}
+			}
+		}
+
+		return null;
 	}
 }
