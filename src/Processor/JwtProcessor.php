@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Apploud\Logger\Processor;
 
+use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
 use Monolog\LogRecord;
@@ -62,9 +63,13 @@ class JwtProcessor implements ProcessorInterface
 			return [];
 		}
 
-		/** @var UnencryptedToken $token */
-		$token = $this->parser->parse($this->jwt);
-		$jwtPayload = $token->claims();
+		try {
+			/** @var UnencryptedToken $token */
+			$token = $this->parser->parse($this->jwt);
+			$jwtPayload = $token->claims();
+		} catch (InvalidTokenStructure) {
+			return [];
+		}
 
 		$fields = [];
 
